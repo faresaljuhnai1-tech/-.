@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر فن البيكسل المتقدم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* =================================================== */
+        /* التنسيق الأساسي والحديث (Modern Styles) */
+        /* =================================================== */
+        :root {
+            --primary: #00bcd4;
+            --primary-dark: #0097a7;
+            --secondary: #f39c12;
+            --accent: #ff4081;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --card-bg-light: #252525;
+            --text: #e0e0e0;
+            --text-light: #a0a0a0;
+            --danger: #e74c3c;
+            --success: #4CAF50;
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 10px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
+        
+        p.subtitle {
+            margin-bottom: 30px;
+            color: var(--text-light);
+            text-align: center;
+            max-width: 600px;
+            font-size: 1.1em;
+        }
+        
+        /* شريط التنقل (Tabs) */
+        #navigation-tabs {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            background-color: var(--card-bg-light);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-button {
+            background-color: transparent;
+            color: var(--text);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.2);
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* حاويات العرض الرئيسية */
+        .content-view {
+            max-width: 1300px;
+            width: 100%;
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* تصميم تخطيط عرض الرسم */
+        #Drawing-View {
+            display: flex;
+            gap: 35px;
+            flex-wrap: wrap; 
+        }
+        
+        #tools-panel, #editor-area {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #tools-panel {
+            flex: 1; 
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        #editor-area {
+            flex: 2; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 650px;
+        }
+
+        /* منطقة التحميل في صفحة التحويل */
+        #Upload-View {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #Upload-View #upload-container {
+            width: 85%;
+            max-width: 650px;
+            margin: 35px auto;
+            border: 4px dashed var(--primary);
+        }
+        
+        /* تصميم منطقة التحميل */
+        #upload-container {
+            border-radius: var(--border-radius);
+            padding: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: linear-gradient(135deg, var(--card-bg-light), var(--card-bg));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #upload-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
+        }
+        
+        #upload-container:hover::before {
+            transform: scaleX(1);
+        }
+        
+        #upload-container:hover { 
+            background: linear-gradient(135deg, var(--card-bg), var(--card-bg-light)); 
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent);
+        }
+        
+        #upload-container.drag-over { 
+            border-color: var(--success); 
+            background-color: rgba(76, 175, 80, 0.1); 
+        }
+        
+        .upload-icon { 
+            font-size: 4em; 
+            margin-bottom: 15px; 
+            color: var(--primary); 
+            transition: var(--transition);
+        }
+        
+        #upload-container:hover .upload-icon {
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+        
+        .upload-text { 
+            font-size: 1.4em; 
+            font-weight: 700; 
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        #upload-input { 
+            display: none; 
+        }
+        
+        /* التحكم والأزرار */
+        .control-group { 
+            margin-bottom: 25px; 
+            padding: 25px; 
+            border-radius: var(--border-radius); 
+            background: linear-gradient(135deg, var(--card-bg-light), var(--card-bg));
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        .control-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group h3 {
+            margin-bottom: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3em;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        input[type="number"], button, input[type="range"] { 
+            padding: 14px; 
+            border-radius: 10px; 
+            border: none; 
+            font-size: 1.05em;
+            transition: var(--transition);
+        }
+        
+        input[type="number"] { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            width: 120px; 
+            text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.3);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.5);
+            transition: var(--transition);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.7);
+        }
+        
+        button { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover { 
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary)); 
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 188, 212, 0.4);
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+        }
+        
+        button.danger:hover {
+            background: linear-gradient(135deg, #c0392b, var(--danger));
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        button.success {
+            background: linear-gradient(135deg, var(--success), #388e3c);
+        }
+        
+        button.success:hover {
+            background: linear-gradient(135deg, #388e3c, var(--success));
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+        
+        #color-picker { 
+            width: 100%; 
+            height: 60px; 
+            border: none; 
+            cursor: pointer; 
+            padding: 0; 
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        #color-picker:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* شبكة البيكسل */
+        #pixel-grid { 
+            border: 4px solid #415a77; 
+            background: linear-gradient(45deg, #0d1b2a, #1b263b); 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); 
+            cursor: crosshair; 
+            margin-top: 25px; 
+            width: 550px; 
+            height: 550px; 
+            border-radius: 8px;
+            display: grid;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        #pixel-grid:hover {
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        }
+        
+        .pixel { 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-sizing: border-box; 
+            background-color: transparent; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .pixel:hover {
+            filter: brightness(1.3);
+            transform: scale(1.1);
+            z-index: 1;
+            position: relative;
+        }
+        
+        /* تأثير المروحة */
+        .fan-effect {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 188, 212, 0.4) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            mix-blend-mode: overlay;
+            filter: blur(5px);
+        }
+        
+        .fan-effect.active {
+            opacity: 0.8;
+            animation: fanPulse 0.6s infinite alternate;
+        }
+        
+        @keyframes fanPulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.3); opacity: 0.9; }
+        }
+        
+        /* شريط التقدم */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--card-bg-light);
+            border-radius: 5px;
+            margin: 18px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+        }
+        
+        /* نتائج الرفع */
+        #upload-result {
+            width: 100%;
+            max-width: 850px;
+            margin-top: 35px;
+            text-align: center;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, var(--card-bg), var(--card-bg-light));
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin-top: 25px;
+            border-left: 5px solid var(--secondary);
+            transition: var(--transition);
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* تصميم المروحة - تم التعديل على المواقع */
+        .fan-control {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(40, 40, 40, 0.9));
+            border-radius: var(--border-radius);
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+        }
+        
+        .fan-control:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .fan-container {
+            position: relative;
+            width: 280px;
+            height: 320px;
+            margin: 0 auto 25px;
+        }
+        
+        .fan-base {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 8px;
+            z-index: 2;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+        
+        .fan-stand {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 140px;
+            background: linear-gradient(to bottom, #666, #444);
+            z-index: 1;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .fan-motor {
+            position: absolute;
+            bottom: 165px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 35px;
+            background: linear-gradient(to bottom, #444, #333);
+            border-radius: 10px;
+            z-index: 3;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .fan-head {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+            background: rgba(25, 25, 35, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--primary);
+            box-shadow: 
+                0 0 25px rgba(0, 188, 212, 0.6),
+                inset 0 0 20px rgba(0, 188, 212, 0.2);
+            z-index: 4;
+            transition: var(--transition);
+        }
+        
+        .fan-head:hover {
+            box-shadow: 
+                0 0 35px rgba(0, 188, 212, 0.8),
+                inset 0 0 25px rgba(0, 188, 212, 0.3);
+        }
+        
+        .fan-blades {
+            width: 160px;
+            height: 160px;
+            position: relative;
+            animation: rotate 2s linear infinite;
+            animation-play-state: paused;
+            transition: transform 0.5s ease;
+        }
+        
+        .fan-blade {
+            position: absolute;
+            width: 70px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 14px;
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+            box-shadow: 0 0 12px rgba(0, 188, 212, 0.7);
+            transition: var(--transition);
+        }
+        
+        .fan-blade:nth-child(1) { transform: translate(0, -50%) rotate(0deg); }
+        .fan-blade:nth-child(2) { transform: translate(0, -50%) rotate(90deg); }
+        .fan-blade:nth-child(3) { transform: translate(0, -50%) rotate(180deg); }
+        .fan-blade:nth-child(4) { transform: translate(0, -50%) rotate(270deg); }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fan-active .fan-blades {
+            animation-play-state: running;
+        }
+        
+        .speed-control {
+            margin-top: 25px;
+        }
+        
+        .speed-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+            transition: var(--transition);
+        }
+        
+        .status-active .status-dot {
+            background-color: var(--success);
+            box-shadow: 0 0 15px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* لوحة الألوان */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+        
+        .color-option {
+            height: 45px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 3px solid transparent;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .color-option.active {
+            border-color: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+        
+        /* استجابة الجوال */
+        @media (max-width: 900px) {
+            #Drawing-View { 
+                flex-direction: column; 
+            }
+            
+            #editor-area, #tools-panel { 
+                width: 100%; 
+                min-height: auto; 
+            }
+            
+            #pixel-grid { 
+                width: 95vw !important; 
+                height: 95vw !important; 
+                max-width: 450px; 
+                max-height: 450px; 
+            }
+            
+            #Upload-View #upload-container { 
+                width: 98%; 
+                padding: 40px; 
+            }
+            
+            #navigation-tabs {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2em;
+            }
+            
+            .fan-container {
+                width: 240px;
+                height: 280px;
+            }
+            
+            .fan-head {
+                width: 150px;
+                height: 150px;
+                bottom: 170px;
+            }
+            
+            .fan-blades {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .fan-blade {
+                width: 55px;
+                height: 22px;
+            }
+        }
+        
+        /* تذييل الصفحة */
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95em;
+            padding: 25px;
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* تأثيرات إضافية */
+        .glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="floating"><i class="fas fa-palette"></i> مولد فن البيكسل المتقدم</h1>
+    <p class="subtitle">حول الصور ومقاطع الفيديو إلى أعمال فنية ببيكسل - أبدع برسوماتك مع تأثير المروحة التفاعلي!</p>
+    
+    <div id="navigation-tabs">
+        <button class="nav-button active" data-view="Drawing-View">
+            <i class="fas fa-paint-brush glow"></i> الرسم اليدوي
+        </button>
+        <button class="nav-button" data-view="Upload-View">
+            <i class="fas fa-file-upload glow"></i> تحويل الوسائط
+        </button>
+    </div>
+
+    <div id="Drawing-View" class="content-view">
+        <div id="tools-panel">
+            <h2><i class="fas fa-sliders-h"></i> إعدادات الرسم</h2>
+            
+            <div class="control-group">
+                <h3><i class="fas fa-ruler-combined"></i> أبعاد اللوحة</h3>
+                <label for="grid-size">أبعاد اللوحة (N x N):</label>
+                <input type="number" id="grid-size" value="16" min="8" max="64">
+                <button onclick="changeGridSize()">
+                    <i class="fas fa-sync-alt"></i> إنشاء/تحديث اللوحة
+                </button>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-palette"></i> الألوان</h3>
+                <label for="color-picker">اللون الحالي:</label>
+                <input type="color" id="color-picker" value="#00bcd4">
+                
+                <div class="color-palette">
+                    <div class="color-option active" style="background-color: #ff0000;" onclick="setColor('#ff0000')"></div>
+                    <div class="color-option" style="background-color: #00ff00;" onclick="setColor('#00ff00')"></div>
+                    <div class="color-option" style="background-color: #0000ff;" onclick="setColor('#0000ff')"></div>
+                    <div class="color-option" style="background-color: #ffff00;" onclick="setColor('#ffff00')"></div>
+                    <div class="color-option" style="background-color: #ff00ff;" onclick="setColor('#ff00ff')"></div>
+                    <div class="color-option" style="background-color: #00ffff;" onclick="setColor('#00ffff')"></div>
+                    <div class="color-option" style="background-color: #ff9900;" onclick="setColor('#ff9900')"></div>
+                    <div class="color-option" style="background-color: #9900ff;" onclick="setColor('#9900ff')"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3><i class="fas fa-tools"></i> الأدوات</h3>
+                <button onclick="clearGrid()" class="danger">
+                    <i class="fas fa-trash-alt"></i> مسح اللوحة بالكامل
+                </button>
+                <button onclick="saveImage()" class="success">
+                    <i class="fas fa-download"></i> حفظ الرسم (PNG)
+                </button>
+                <button onclick="fillGrid()" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); margin-top: 10px;">
+                    <i class="fas fa-fill-drip"></i> تعبئة اللوحة
+                </button>
+            </div>
+            
+            <!-- تم نقل المروحة إلى هنا لتكون في مكان مناسب -->
+            <div class="fan-control">
+                <h3><i class="fas fa-wind"></i> تحكم المروحة التفاعلي</h3>
+                <div class="fan-container">
+                    <div class="fan-base"></div>
+                    <div class="fan-stand"></div>
+                    <div class="fan-motor"></div>
+                    <div class="fan-head" id="fan-head">
+                        <div class="fan-blades" id="fan-blades">
+                            <div class="fan-blade"></div>
+                            <div class="fan-blade"></div>
+                            <div class="fan-blade"></div>
+                            <div class="fan-blade"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="speed-control">
+                    <label for="fan-speed">سرعة المروحة:</label>
+                    <input type="range" id="fan-speed" min="0" max="100" value="0">
+                    <div class="speed-display">
+                        <span>إيقاف</span>
+                        <span id="speed-value">0%</span>
+                        <span>أقصى سرعة</span>
+                    </div>
+                </div>
+                
+                <div class="status-indicator" id="fan-status">
+                    <div class="status-dot"></div>
+                    <span>المروحة غير متصلة</span>
+                </div>
+                
+                <button onclick="connectFan()" style="margin-top: 20px;">
+                    <i class="fas fa-plug"></i> تشغيل/إيقاف المروحة
+                </button>
+            </div>
+        </div>
+        
+        <div id="editor-area">
+            <h2><i class="fas fa-drafting-compass"></i> لوحة الرسم التفاعلية</h2>
+            <p style="color: var(--text-light); margin-bottom: 20px;">ارسم على الشبكة باستخدام اللون المحدد - حرك الماوس مع تشغيل المروحة لتغيير البكسلات!</p>
+            <div id="pixel-grid"></div>
+            <div class="fan-effect" id="fan-effect"></div>
+        </div>
+    </div>
+
+    <div id="Upload-View" class="content-view">
+        <h2 style="text-align: center; color: var(--secondary);">
+            <i class="fas fa-rocket"></i> تحويل صورة أو فيديو إلى فن بيكسل
+        </h2>
+        <p style="text-align: center; color: var(--text-light); margin-bottom: 25px;">
+            قم برفع ملفك وسنقوم بمعالجته وتحويله إلى بيكسلات يمكنك حفظها.
+        </p>
+
+        <div id="upload-container">
+            <span class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></span>
+            <p class="upload-text">اسحب وأفلت ملف وسائط هنا أو انقر للتحميل</p>
+            <p style="font-size: 1em; color: var(--text-light); margin-bottom: 25px;">
+                يدعم: PNG, JPG, GIF, MP4, MOV, AVI
+            </p>
+            <button onclick="document.getElementById('upload-input').click()">
+                <i class="fas fa-folder-open"></i> اختر ملف
+            </button>
+            <input type="file" id="upload-input" accept="image/*, video/*"> 
+        </div>
+        
+        <div class="progress-bar" style="display: none;" id="progress-container">
+            <div class="progress" id="upload-progress"></div>
+        </div>
+        
+        <div id="upload-result"></div>
+    </div>
+
+    <footer>
+        <p>تم التطوير باستخدام HTML5 و CSS3 و JavaScript</p>
+        <p>محرر فن البيكسل المتقدم مع تأثير المروحة التفاعلي &copy; 2023</p>
+    </footer>
+
+    <script>
+        // الكود JavaScript سيأتي هنا...
+        // (نفس الكود السابق مع إضافة دالة fillGrid)
+        
+        function fillGrid() {
+            const pixels = document.querySelectorAll('.pixel');
+            pixels.forEach(pixel => {
+                pixel.style.backgroundColor = colorPicker.value;
+            });
+        }
+    </script>
+</body>
+</html>
